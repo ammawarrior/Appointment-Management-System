@@ -4,11 +4,18 @@ include 'temp_db.php'; // Database connection
 
 // Function to log user activity
 function logActivity($conn, $user_id, $activity) {
-    $stmt = $conn->prepare("INSERT INTO user_activity (user_id, activity) VALUES (?, ?)");
-    $stmt->bind_param("is", $user_id, $activity);
+    if ($user_id === null) {
+        $stmt = $conn->prepare("INSERT INTO user_activity (user_id, activity) VALUES (NULL, ?)");
+        $stmt->bind_param("s", $activity);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO user_activity (user_id, activity) VALUES (?, ?)");
+        $stmt->bind_param("is", $user_id, $activity);
+    }
     $stmt->execute();
     $stmt->close();
 }
+
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
@@ -42,12 +49,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
         } else {
             // Log failed login attempt
-            logActivity($conn, 0, "Failed login attempt for username: $username");
+            logActivity($conn, null, "Failed login attempt for username: $username");
+
             $error = "Invalid username or password.";
         }
     } else {
         // Log failed login attempt
-        logActivity($conn, 0, "Failed login attempt for username: $username");
+        logActivity($conn, null, "Failed login attempt for username: $username");
+
         $error = "Invalid username or password.";
     }
 
