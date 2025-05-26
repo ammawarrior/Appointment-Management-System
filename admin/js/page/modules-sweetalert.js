@@ -3,6 +3,15 @@
 $(".swal-button").click(function () {
   const buttonId = $(this).data("id");
 
+  swal({
+    title: "Fetching Details...",
+    text: "Please wait while we retrieve the transaction data.",
+    icon: "info",
+    buttons: false,
+    closeOnClickOutside: false,
+    closeOnEsc: false
+  });
+
   $.ajax({
     url: "fetch_transaction.php",
     type: "POST",
@@ -10,29 +19,20 @@ $(".swal-button").click(function () {
     dataType: "json",
     success: function (response) {
       if (response.status !== "error") {
-        // Remove any existing SweetAlert content to prevent overlapping
-        $(".swal-content").remove(); 
-        
-        // Convert status to integer for correct comparison
         const statusInt = parseInt(response.status, 10);
-        const statusText = statusInt === 2 ? "Confirmed" : statusInt === 3 ? "Rejected" : "Pending";
-
-        // Convert lab_id to its corresponding description
         const labDescriptions = {
           1: "Metrology Calibration",
           2: "Chemical Analysis",
           3: "Microbiological Analysis",
           4: "Shelf-life Analysis"
         };
-
-        const labType = labDescriptions[response.lab_id] || "Unknown"; // Default to 'Unknown' if not found
+        const labType = labDescriptions[response.lab_id] || "Unknown";
 
         swal({
           title: "Transaction Details",
           content: {
             element: "div",
             attributes: {
-              id: "swal-content",  // Unique ID to prevent content stacking
               innerHTML: `
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr><td style="font-weight: bold;">Transaction ID</td><td>${response.unique_id || "N/A"}</td></tr>
@@ -47,40 +47,36 @@ $(".swal-button").click(function () {
                   <tr><td style="font-weight: bold;">Date Submitted</td><td>${response.submission_date}</td></tr>
                   <tr><td style="font-weight: bold;">Date Appointed</td><td>${response.submission_date_selected}</td></tr>
                 </table>
-              `,
-            },
+              `
+            }
           },
           buttons: {
             cancel: "Close",
             reject: {
               text: "Reject",
               value: "reject",
-              visible: true,
-              className: "",
+              className: ""
             },
             confirm: {
               text: "Confirm",
               value: "confirm",
-              visible: true,
-              className: "",
-            },
+              className: ""
+            }
           },
-          closeOnClickOutside: false,
+          closeOnClickOutside: false
         }).then((value) => {
           if (value === "confirm") {
-            updateTransactionStatus(buttonId, 2); // Confirm (status = 2)
+            updateTransactionStatus(buttonId, 2);
           } else if (value === "reject") {
-            updateTransactionStatus(buttonId, 3); // Reject (status = 3)
+            updateTransactionStatus(buttonId, 3);
           }
         });
 
-        // Ensure button styles are set correctly
         setTimeout(() => {
           $(".swal-button--reject").css({
             "background-color": "#d9534f",
             "color": "white"
           });
-
           $(".swal-button--confirm").css({
             "background-color": "#5cb85c",
             "color": "white"
@@ -92,36 +88,35 @@ $(".swal-button").click(function () {
     },
     error: function () {
       swal("Error", "Failed to fetch data. Please try again later.", "error");
-    },
+    }
   });
 });
 
 function updateTransactionStatus(id, status) {
-  console.log("Sending request to update transaction...");
-  console.log("Transaction ID:", id);
-  console.log("New Status:", status);
+  swal({
+    title: "Processing...",
+    text: "Please wait while we update the status.",
+    icon: "info",
+    buttons: false,
+    closeOnClickOutside: false,
+    closeOnEsc: false
+  });
 
   $.ajax({
     url: "update_transaction.php",
     type: "POST",
     data: { id: id, status: status },
-    dataType: "text",
     success: function (response) {
-      response = response.trim(); // Trim any whitespace
-      console.log("Server Response:", response); // Debugging log
-
-      if (response === "success") {
+      if (response.trim() === "success") {
         swal("Success", "Transaction status updated successfully!", "success").then(() => {
-          location.reload(); // Refresh the page to reflect changes
+          location.reload();
         });
       } else {
-        swal("Error", response.replace("error: ", ""), "error");
+        swal("Error", "Could not update transaction.", "error");
       }
     },
-    error: function (xhr, status, error) {
-      console.error("AJAX Error:", error);
-      console.log("XHR Response:", xhr.responseText); // Debugging log
+    error: function () {
       swal("Error", "Server error. Please try again later.", "error");
-    },
+    }
   });
 }

@@ -24,11 +24,11 @@ $labNames = [
 ];
 
 // Set query based on role
-if (in_array($user_role, [1, 6, 7])) { // Roles 1, 6, and 7 see all
-    $query = "SELECT unique_id, lab_id, category, full_name, contact_number, submission_date_selected, quantity, status FROM submissions";
+if (in_array($user_role, [1, 6, 7])) {
+    $query = "SELECT unique_id, lab_id, category, full_name, contact_number, submission_date_selected, quantity, status FROM submissions WHERE status = 1";
 } else {
-    $lab_id = $user_role - 1; // Map role to lab_id
-    $query = "SELECT unique_id, lab_id, category, full_name, contact_number, submission_date_selected, quantity, status FROM submissions WHERE lab_id = $lab_id";
+    $lab_id = $user_role - 1;
+    $query = "SELECT unique_id, lab_id, category, full_name, contact_number, submission_date_selected, quantity, status FROM submissions WHERE lab_id = $lab_id AND status = 1";
 }
 $result = $conn->query($query);
 ?>

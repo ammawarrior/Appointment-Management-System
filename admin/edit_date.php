@@ -14,7 +14,8 @@ $dateFilter = isset($_GET['date']) ? $_GET['date'] : '';
 // Fetch confirmed submissions
 $query = "SELECT id, unique_id, lab_id, category, quantity, submission_date_selected, request_type, analysis 
           FROM submissions 
-          WHERE status = 2";
+          WHERE status = 2 AND category != 'Walk-in'";
+
 
 if (!empty($dateFilter)) {
     $query .= " AND submission_date_selected = ?";

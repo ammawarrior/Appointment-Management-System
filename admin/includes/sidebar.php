@@ -53,11 +53,12 @@ $role = $_SESSION['role'] ?? 0; // Get user role from session
                 <ul class="dropdown-menu">
                     <li><a class="nav-link" href="index.php">Reservation</a></li>
                     <li><a class="nav-link" href="calendar_schedule.php">Calendar</a></li>
+                    <li><a class="nav-link" href="edit_date.php">Change Date</a></li>
                     <li><a class="nav-link" href="analytics.php">Analytics</a></li>
-                    
+
+                    <br>
                     <?php if (in_array($role, [1])): ?>
     <li><a class="nav-link" href="priority.php">Manage Priority</a></li>
-    <li><a class="nav-link" href="edit_date.php">Change Date</a></li>
     <li><a class="nav-link" href="manage_user.php">Manage User</a></li>
     <li><a class="nav-link" href="activity_logs.php">Activity Logs</a></li>
 
